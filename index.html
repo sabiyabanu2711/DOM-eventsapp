@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskMaster — Modern DOM To-Do App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-content">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 11 3 3L22 4"/>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="brand-title">TaskMaster</h1>
+            <p class="brand-subtitle" id="currentDate">Stay productive and organized</p>
+          </div>
+        </div>
+        <button id="themeToggleBtn" class="icon-button" title="Toggle Theme" aria-label="Toggle Dark/Light Mode">
+          <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+          </svg>
+          <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Quick Metrics Summary -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-label">Total</span>
+          <span class="metric-value" id="totalTasksCount">0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Active</span>
+          <span class="metric-value pending-color" id="activeTasksCount">0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Done</span>
+          <span class="metric-value completed-color" id="completedTasksCount">0</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="card main-card">
+      <!-- Input Section (Form submit event) -->
+      <form id="todoForm" class="todo-form">
+        <div class="input-group">
+          <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="16"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+          </svg>
+          <input 
+            type="text" 
+            id="todoInput" 
+            placeholder="What needs to be done today?..." 
+            autocomplete="off"
+            required
+            maxlength="120"
+          />
+          <button type="submit" id="addBtn" class="btn btn-primary">
+            <span>Add Task</span>
+          </button>
+        </div>
+        <div id="inputFeedback" class="input-feedback hidden"></div>
+      </form>
+
+      <!-- Filter Controls & Actions Bar -->
+      <div class="controls-bar">
+        <div class="filter-tabs" role="tablist">
+          <button class="filter-btn active" data-filter="all" role="tab" aria-selected="true">
+            All <span class="badge" id="badgeAll">0</span>
+          </button>
+          <button class="filter-btn" data-filter="active" role="tab" aria-selected="false">
+            Active <span class="badge" id="badgeActive">0</span>
+          </button>
+          <button class="filter-btn" data-filter="completed" role="tab" aria-selected="false">
+            Completed <span class="badge" id="badgeCompleted">0</span>
+          </button>
+        </div>
+
+        <div class="actions-right">
+          <!-- Search box -->
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+            <input type="text" id="searchInput" placeholder="Search tasks..." aria-label="Search tasks" />
+          </div>
+
+          <button id="clearCompletedBtn" class="btn btn-ghost danger-text" title="Clear all finished tasks">
+            Clear Finished
+          </button>
+        </div>
+      </div>
+
+      <!-- Task List Container (DOM injected) -->
+      <div class="list-wrapper">
+        <ul id="todoList" class="todo-list" aria-live="polite">
+          <!-- Dynamically populated via JS -->
+        </ul>
+
+        <!-- Empty State Placeholder -->
+        <div id="emptyState" class="empty-state hidden">
+          <div class="empty-icon-box">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <path d="m9 15 2 2 4-4"/>
+            </svg>
+          </div>
+          <h3 id="emptyTitle">No tasks yet</h3>
+          <p id="emptySubtitle">Add your first task above to kickstart your day!</p>
+        </div>
+      </div>
+
+      <!-- Footer Info -->
+      <footer class="card-footer">
+        <div class="storage-indicator">
+          <span class="status-dot"></span>
+          <span>Synced with LocalStorage</span>
+        </div>
+        <div class="hint-text">
+          Double-click any task to edit inline
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
